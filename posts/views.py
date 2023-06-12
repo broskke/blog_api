@@ -8,5 +8,8 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return serializers.
-        return serializers.
+            return serializers.PostListSerializer
+        return serializers.PostCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
