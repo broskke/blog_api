@@ -28,7 +28,7 @@ class PostListSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_authenticated:
             repr['is_liked'] = user.likes.filter(post=instance).exists()
-
+            repr['is_favorite'] = user.favorites.filter(post=instance).exists()
         return repr
 
 
@@ -68,5 +68,5 @@ class PostDetailSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_authenticated:
             repr['is_liked'] = user.likes.filter(post=instance).exists()
-
+            repr['is_favorite'] = user.favorites.filter(post=instance).exists()
         return repr

@@ -11,7 +11,7 @@ from .permissions import IsAuthor, IsAuthorOrAdmin
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
-
+from like.models import Favorite
 
 class StandartResultPagination(PageNumberPagination):
     page_size = 3
@@ -55,6 +55,23 @@ class PostViewSet(ModelViewSet):
         likes = post.likes.all()
         serializer = LikeUserSerializer(instance=likes, many=True)
         return Response(serializer.data, status=200)
+    
+    @action(['POST','DELETE'], detail=True)
+    def favorites(self, request, pk):
+            post = self.get_object()
+            user = request.user
+            favorite = user.favorites.filter(post=post)
+            if request.method == 'POST':
+                if user.favorites.filter(post=post).exists():
+                    return Response({'msg':'Already in Favorite'}, status=400)
+                Favorite.objects.create(owner=user, post=post)
+                return Response({'msg':'Added to Favorite'}, status=201)
+            
+            if favorite.exists():
+                favorite.delete()
+                return Response({'msg':'Deleted from Favorite'}, status=204)
+            return Response({'msg': 'Post Not Found in Favorite'}, status=404)
+    
 
 # class PostListCreateView(generics.ListCreateAPIView):
 #     queryset = Post.objects.all()

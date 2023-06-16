@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from like.models import Like
+from like.models import Like, Favorite
 
 
 class LikeUserSerializer(serializers.ModelSerializer):
@@ -27,3 +27,16 @@ class LikeSerializer(serializers.ModelSerializer):
         if user.likes.filter(post=post).exists():
             raise serializers.ValidationError('You already liked this post')
         return attrs
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ('id','post')
+    
+    def to_representation(self, instance):
+        repr = super(FavoriteSerializer, self).to_representation(instance)
+        repr['post_title'] = instance.post.title
+        prewiew = instance.post.prewiew
+        repr['post_prewiew'] = prewiew.url if prewiew else None
+        return repr
